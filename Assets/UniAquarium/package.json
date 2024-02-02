@@ -1,7 +1,7 @@
 ﻿{
   "name": "com.garume.uniaquarium",
   "displayName": "UniAquarium",
-  "version": "1.0,0",
+  "version": "1.0.0",
   "unity": "2022.1",
   "license": "MIT",
   "dependencies": {
