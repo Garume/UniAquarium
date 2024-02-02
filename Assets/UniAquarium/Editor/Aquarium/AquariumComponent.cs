@@ -9,6 +9,10 @@ namespace UniAquarium.Aquarium
 {
     public class AquariumComponent : CanvasSceneComponent<AquariumScene, AquariumActor, AquariumSceneOption>
     {
+        public AquariumComponent(bool interactive = true) : base(interactive)
+        {
+        }
+
         protected override float DeltaTime => EditorDeltaTime.DeltaTime * 2f;
         public bool IsDebug => SceneOption.IsDebug;
 
@@ -27,7 +31,7 @@ namespace UniAquarium.Aquarium
             foreach (var fishGroupSettings in settings.FishGroupSettings)
             {
                 var fishSettings = fishGroupSettings.FishSettings;
-                
+
                 if (fishSettings.Length == 0) continue;
                 if (fishSettings.Length == 1)
                 {
