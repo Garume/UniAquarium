@@ -15,6 +15,7 @@ namespace UniAquarium.Aquarium.Scene
         }
 
         public bool IsDebug { get; set; }
+        public float TimeScale { get; set; } = 1f;
         public float Width { get; }
         public float Height { get; }
         public ISceneUtility<AquariumActor> Utility { get; }
