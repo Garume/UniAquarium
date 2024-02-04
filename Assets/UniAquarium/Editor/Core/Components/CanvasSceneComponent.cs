@@ -10,7 +10,7 @@ namespace UniAquarium.Core.Components
     {
         private readonly bool _interactive;
         private T _scene;
-        protected TOption SceneOption;
+        public TOption SceneOption;
 
         protected CanvasSceneComponent(bool interactive = true)
         {
