@@ -49,13 +49,13 @@ namespace UniAquarium.Core.Paints
             foreach (var node in _nodes) node.Initialize(this, SceneOption);
         }
 
-        public INode GetNode<TNode>() where TNode : INode
+        public TNode GetNode<TNode>() where TNode : INode
         {
             foreach (var node in _nodes)
                 if (node is TNode t)
                     return t;
 
-            return null;
+            return default;
         }
 
         public void Press(MouseDownEvent evt)
