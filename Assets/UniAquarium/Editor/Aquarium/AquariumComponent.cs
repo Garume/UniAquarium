@@ -13,13 +13,7 @@ namespace UniAquarium.Aquarium
         {
         }
 
-        protected override float DeltaTime => EditorDeltaTime.DeltaTime * 2f;
-        public bool IsDebug => SceneOption.IsDebug;
-
-        public void ToggleDebug()
-        {
-            SceneOption.IsDebug = !SceneOption.IsDebug;
-        }
+        protected override float DeltaTime => EditorDeltaTime.DeltaTime * SceneOption.TimeScale;
 
         protected override void Initialize(AquariumSceneOption sceneOption)
         {
@@ -46,7 +40,7 @@ namespace UniAquarium.Aquarium
                     {
                         var fish = FishFactory.Create(fishSetting, sceneOption);
                         fish.Instantiate(fishSetting.Location, fishSetting.Angle, fishSetting.Scale);
-                        boid.AddTrackingNode(fish.GetNode<TargetTrackingNode>() as TargetTrackingNode);
+                        boid.AddTrackingNode(fish.GetNode<TargetTrackingNode>());
                     }
                 }
             }

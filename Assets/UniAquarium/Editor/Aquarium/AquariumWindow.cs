@@ -9,10 +9,8 @@ namespace UniAquarium.Aquarium
 
         public void OnEnable()
         {
-            var root = rootVisualElement;
-
             _aquariumComponent = new AquariumComponent();
-            root.Add(_aquariumComponent);
+            rootVisualElement.Add(_aquariumComponent);
 
             _aquariumComponent.Enable();
         }
@@ -24,8 +22,8 @@ namespace UniAquarium.Aquarium
 
         public void AddItemsToMenu(GenericMenu menu)
         {
-            menu.AddItem(new GUIContent("Debug"), _aquariumComponent.IsDebug,
-                _aquariumComponent.ToggleDebug);
+            menu.AddItem(new GUIContent("Debug"), _aquariumComponent.SceneOption.IsDebug,
+                () => { _aquariumComponent.SceneOption.IsDebug = !_aquariumComponent.SceneOption.IsDebug; });
             menu.AddItem(new GUIContent("Reload"), false, () =>
             {
                 rootVisualElement.Remove(_aquariumComponent);
