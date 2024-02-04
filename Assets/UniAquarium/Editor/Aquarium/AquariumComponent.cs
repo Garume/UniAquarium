@@ -40,7 +40,7 @@ namespace UniAquarium.Aquarium
                     {
                         var fish = FishFactory.Create(fishSetting, sceneOption);
                         fish.Instantiate(fishSetting.Location, fishSetting.Angle, fishSetting.Scale);
-                        boid.AddTrackingNode(fish.GetNode<TargetTrackingNode>() as TargetTrackingNode);
+                        boid.AddTrackingNode(fish.GetNode<TargetTrackingNode>());
                     }
                 }
             }
