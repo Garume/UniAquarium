@@ -16,7 +16,7 @@ Update/draw hot paths were tuned to reduce per-frame allocations and repeated ex
 - Kept `Painter2DScope` as a reference type to preserve mutable transform semantics.
 - Reduced Boid update work by precomputing group position/velocity totals once per update.
 - Replaced additional `Vector2.normalized` hot-path calls with explicit guarded normalization.
-- Reworked `JellyFishShape` head geometry so fill/frame use the same edge point calculation and added cached cap sine/cosine/power values.
+- Reverted `JellyFishShape` rendering to the original geometry to preserve visual behavior.
 - Replaced `Vector2.zero` target sentinel logic in `TargetTrackingNode` with explicit target state, so `(0, 0)` is a valid target.
 - Removed unused `INode.Id` / `Guid.NewGuid()` identity management from nodes.
 - Added scene spawn guardrails for null actors and duplicate actor spawn attempts.
@@ -27,7 +27,6 @@ Update/draw hot paths were tuned to reduce per-frame allocations and repeated ex
 - Added `AllocatedBytes` measurement using `GC.GetAllocatedBytesForCurrentThread()`.
 - Replaced `foreach` in hot update/draw loops with indexed `for` loops.
 - Removed per-frame fin-side array allocation from `FishShape`.
-- Removed per-frame `Stack<Vector2>` allocation from `JellyFishShape`.
 - Removed LINQ array construction from `BranchShape` initialization.
 - Avoided duplicate arrival-distance checks in `TargetTrackingNode`.
 - Added a headless benchmark entry point: `UniAquarium.Performance.UniAquariumPerformanceBenchmark.RunHeadless`.
@@ -84,10 +83,9 @@ Unity EditMode tests were executed through batchmode:
 
 Result:
 
-- 19 tests passed after adding JellyFish geometry, zero-vector target, forced-target cleanup, spawn guardrail, actor-buffer, ActorBuilder, and scene-option constructor coverage.
+- 17 tests passed after adding zero-vector target, forced-target cleanup, spawn guardrail, actor-buffer, ActorBuilder, and scene-option constructor coverage.
 - 0 failed.
 - Performance benchmark tests assert `AllocatedBytes == 0`.
-- `JellyFishShapeTests` asserts generated head edge points are symmetric and non-NaN.
 
 ## Benchmark Output Format
 
