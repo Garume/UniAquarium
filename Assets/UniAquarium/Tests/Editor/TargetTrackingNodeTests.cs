@@ -30,7 +30,7 @@ namespace UniAquarium.Tests.Editor
         }
 
         [Test]
-        public void Update_WhenForcedTargetArrives_ClearsTarget()
+        public void Update_WhenForcedTargetArrives_KeepsLastTargetPosition()
         {
             var scene = new AquariumScene();
             var option = new AquariumSceneOption(320f, 240f, scene);
@@ -45,7 +45,8 @@ namespace UniAquarium.Tests.Editor
             receiver.Update(0.1f);
             tracking.Update(0.1f);
 
-            Assert.That(tracking.HasTarget, Is.False);
+            Assert.That(tracking.HasTarget, Is.True);
+            Assert.That(tracking.TargetPosition, Is.EqualTo(new Vector2(0.1f, 0f)));
         }
 
         private sealed class StubReceiverNode : ReceiverNode<TargetTrackingReceivedData, AquariumSceneOption>

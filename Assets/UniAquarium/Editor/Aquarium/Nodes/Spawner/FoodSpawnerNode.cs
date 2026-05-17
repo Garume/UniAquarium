@@ -10,7 +10,7 @@ namespace UniAquarium.Aquarium.Nodes
     {
         public void Press(MouseDownEvent evt)
         {
-            var location = new Vector2(evt.mousePosition.x, 0);
+            var location = new Vector2(evt.localMousePosition.x, 0);
             Spawn(location);
         }
 

@@ -9,7 +9,7 @@ namespace UniAquarium.Aquarium.Nodes
     {
         public void Press(MouseDownEvent evt)
         {
-            Spawn(evt.mousePosition);
+            Spawn(evt.localMousePosition);
         }
 
         protected override Shockwave CreateActor()
