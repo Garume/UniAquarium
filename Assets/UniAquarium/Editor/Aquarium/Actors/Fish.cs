@@ -1,4 +1,3 @@
-﻿using System.Collections.Generic;
 using UniAquarium.Aquarium.Nodes;
 using UniAquarium.Aquarium.Scene;
 using UniAquarium.Core.Paints;
@@ -15,7 +14,7 @@ namespace UniAquarium.Aquarium.Actors
             _color = color;
         }
 
-        protected override IEnumerable<INode> CreateNodes()
+        protected override void Configure(ActorBuilder builder)
         {
             var targetTrackingNode = new TargetTrackingNode(0.1f);
             var shockwaveReceiverNode = new ShockwaveReceiverNode();
@@ -23,13 +22,10 @@ namespace UniAquarium.Aquarium.Actors
             targetTrackingNode.AddReceiver(shockwaveReceiverNode);
             targetTrackingNode.AddReceiver(foodReceiverNode);
 
-            return new INode[]
-            {
-                new RenderNode<AquariumSceneOption>(new FishShape(_color)),
-                targetTrackingNode,
-                foodReceiverNode,
-                shockwaveReceiverNode
-            };
+            builder.AddNode(new RenderNode<AquariumSceneOption>(new FishShape(_color)));
+            builder.AddNode(targetTrackingNode);
+            builder.AddNode(foodReceiverNode);
+            builder.AddNode(shockwaveReceiverNode);
         }
     }
 }

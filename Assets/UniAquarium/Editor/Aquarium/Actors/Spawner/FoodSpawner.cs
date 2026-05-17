@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
 using UniAquarium.Aquarium.Nodes;
 using UniAquarium.Aquarium.Scene;
 using UniAquarium.Core.Paints;
-using UnityEngine.UIElements;
 
 namespace UniAquarium.Aquarium.Actors
 {
@@ -12,12 +10,9 @@ namespace UniAquarium.Aquarium.Actors
         {
         }
 
-        protected override IEnumerable<INode> CreateNodes()
+        protected override void Configure(ActorBuilder builder)
         {
-            return new INode[]
-            {
-                new FoodSpawnerNode()
-            };
+            builder.AddNode(new FoodSpawnerNode());
         }
     }
 }

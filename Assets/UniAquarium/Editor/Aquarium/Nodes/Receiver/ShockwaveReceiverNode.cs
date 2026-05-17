@@ -1,4 +1,3 @@
-﻿using System.Linq;
 using UniAquarium.Aquarium.Actors;
 using UniAquarium.Aquarium.Scene;
 using UniAquarium.Core.Paints;
@@ -9,48 +8,62 @@ namespace UniAquarium.Aquarium.Nodes
     internal sealed class ShockwaveReceiverNode : ReceiverNode<TargetTrackingReceivedData, AquariumSceneOption>
     {
         private readonly float _avoidDistance;
-        private readonly float _triggerDistance;
-        private ShockwaveSpawnerNode _shockwaveSpawner;
+        private readonly float _triggerDistanceSqr;
 
         public ShockwaveReceiverNode(float triggerDistance = 40f, float avoidDistance = 80f)
         {
-            _triggerDistance = triggerDistance;
+            _triggerDistanceSqr = triggerDistance * triggerDistance;
             _avoidDistance = avoidDistance;
         }
 
-        protected override TargetTrackingReceivedData UpdateReceived()
+        protected override bool TryUpdateReceived(out TargetTrackingReceivedData receivedItem)
         {
-            if (_shockwaveSpawner == null)
-            {
-                var shockwaveSpawner = SceneOption.Utility.GetActor<ShockwaveSpawner>();
-                _shockwaveSpawner = shockwaveSpawner?.GetNode<ShockwaveSpawnerNode>() as ShockwaveSpawnerNode;
+            var shockwaves = SceneOption.Scene.Shockwaves;
+            var selfPosition = Transform.Position;
+            Shockwave shockwave = null;
 
-                if (_shockwaveSpawner == null)
-                    return null;
+            for (var i = 0; i < shockwaves.Count; i++)
+            {
+                var candidate = shockwaves[i];
+                if (candidate.IsDestroyed) continue;
+                if ((candidate.Position - selfPosition).sqrMagnitude >= _triggerDistanceSqr) continue;
+
+                shockwave = candidate;
+                break;
             }
 
-            var shockwave = _shockwaveSpawner.Actors.FirstOrDefault(x =>
-                Vector2.Distance(x.Position, Transform.Position) < _triggerDistance);
-
             if (shockwave == null)
-                return null;
+            {
+                receivedItem = default;
+                return false;
+            }
 
-            var vector = (shockwave.Position - Transform.Position).normalized;
-            var toX = Transform.Position.x - vector.x * _avoidDistance * Random.Range(0f, 1f);
-            var toY = Transform.Position.y - vector.y * _avoidDistance * Random.Range(0f, 1f);
+            var vector = Normalize(shockwave.Position - selfPosition);
+            var toX = selfPosition.x - vector.x * _avoidDistance * Random.Range(0f, 1f);
+            var toY = selfPosition.y - vector.y * _avoidDistance * Random.Range(0f, 1f);
             var to = new Vector2(toX, toY);
 
             var targetSpeed = Random.Range(6f, 10f);
             var lastSpeed = Mathf.Lerp(200f, 300f, Random.Range(0f, 1f));
 
-            var data = new TargetTrackingReceivedData
+            receivedItem = new TargetTrackingReceivedData
             {
                 TargetPosition = to,
                 Speed = targetSpeed,
-                OnArrived = () => Transform.Velocity = Transform.Velocity.normalized * lastSpeed
+                ArrivalAction = TargetTrackingArrivalAction.ApplyVelocity,
+                Transform = Transform,
+                LastSpeed = lastSpeed
             };
+            return true;
+        }
 
-            return data;
+        private static Vector2 Normalize(Vector2 vector)
+        {
+            var sqrMagnitude = vector.x * vector.x + vector.y * vector.y;
+            if (sqrMagnitude < 0.000001f) return Vector2.zero;
+
+            var multiplier = 1f / Mathf.Sqrt(sqrMagnitude);
+            return new Vector2(vector.x * multiplier, vector.y * multiplier);
         }
     }
 }

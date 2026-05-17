@@ -13,33 +13,40 @@ namespace UniAquarium.Aquarium
         {
         }
 
-        protected override float DeltaTime => EditorDeltaTime.DeltaTime * SceneOption.TimeScale;
+        protected override float DeltaTime => EditorDeltaTime.DeltaTime * (SceneOption?.TimeScale ?? 1f);
 
         protected override void Initialize(AquariumSceneOption sceneOption)
         {
             var settings = UniAquariumSettings.Instance.AquariumSetting;
 
-            if (settings.CanFeed) new FoodSpawner(sceneOption).Instantiate(Vector2.zero);
-            if (settings.CanClean) new ShockwaveSpawner(sceneOption).Instantiate(Vector2.zero);
+            if (settings.CanFeed) sceneOption.Utility.Spawn(new FoodSpawner(sceneOption), Vector2.zero, 0f, 1f);
+            if (settings.CanClean) sceneOption.Utility.Spawn(new ShockwaveSpawner(sceneOption), Vector2.zero, 0f, 1f);
 
             foreach (var fishGroupSettings in settings.FishGroupSettings)
             {
+                if (fishGroupSettings == null) continue;
+
                 var fishSettings = fishGroupSettings.FishSettings;
 
                 if (fishSettings.Length == 0) continue;
                 if (fishSettings.Length == 1)
                 {
-                    FishFactory.Create(fishSettings[0], sceneOption).Instantiate(fishSettings[0].Location,
-                        fishSettings[0].Angle, fishSettings[0].Scale);
+                    if (fishSettings[0] == null) continue;
+
+                    sceneOption.Utility.Spawn(FishFactory.Create(fishSettings[0], sceneOption),
+                        fishSettings[0].Location, fishSettings[0].Angle, fishSettings[0].Scale);
                 }
                 else
                 {
                     var boid = new Boid(sceneOption);
-                    boid.Instantiate(Vector2.zero);
+                    sceneOption.Utility.Spawn(boid, Vector2.zero, 0f, 1f);
                     foreach (var fishSetting in fishSettings)
                     {
+                        if (fishSetting == null) continue;
+
                         var fish = FishFactory.Create(fishSetting, sceneOption);
-                        fish.Instantiate(fishSetting.Location, fishSetting.Angle, fishSetting.Scale);
+                        sceneOption.Utility.Spawn(fish, fishSetting.Location, fishSetting.Angle,
+                            fishSetting.Scale);
                         boid.AddTrackingNode(fish.GetNode<TargetTrackingNode>());
                     }
                 }
@@ -56,6 +63,11 @@ namespace UniAquarium.Aquarium
             var width = resolvedStyle.width;
             var height = resolvedStyle.height;
             return new AquariumSceneOption(width, height, scene);
+        }
+
+        protected override void ResizeSceneOption(AquariumSceneOption sceneOption, float width, float height)
+        {
+            sceneOption.Resize(width, height);
         }
     }
 }

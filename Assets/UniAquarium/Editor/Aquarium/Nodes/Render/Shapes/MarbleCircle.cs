@@ -26,9 +26,9 @@ namespace UniAquarium.Aquarium.Nodes
         {
             var size = transform.Scale * _size;
             var bias = 1 / _colors.Length;
-            foreach (var color in _colors)
+            for (var i = 0; i < _colors.Length; i++)
             {
-                var c = color;
+                var c = _colors[i];
                 c.a = Opacity;
                 painter.fillColor = c;
                 painter.FillCircle(transform.Position.x, transform.Position.y, size);

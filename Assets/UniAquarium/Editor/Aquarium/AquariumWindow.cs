@@ -22,8 +22,17 @@ namespace UniAquarium.Aquarium
 
         public void AddItemsToMenu(GenericMenu menu)
         {
-            menu.AddItem(new GUIContent("Debug"), _aquariumComponent.SceneOption.IsDebug,
-                () => { _aquariumComponent.SceneOption.IsDebug = !_aquariumComponent.SceneOption.IsDebug; });
+            var sceneOption = _aquariumComponent.SceneOption;
+            if (sceneOption == null)
+            {
+                menu.AddDisabledItem(new GUIContent("Debug"));
+            }
+            else
+            {
+                menu.AddItem(new GUIContent("Debug"), sceneOption.IsDebug,
+                    () => { sceneOption.IsDebug = !sceneOption.IsDebug; });
+            }
+
             menu.AddItem(new GUIContent("Reload"), false, () =>
             {
                 rootVisualElement.Remove(_aquariumComponent);

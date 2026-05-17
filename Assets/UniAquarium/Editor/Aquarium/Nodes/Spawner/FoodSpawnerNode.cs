@@ -6,11 +6,11 @@ using UnityEngine.UIElements;
 
 namespace UniAquarium.Aquarium.Nodes
 {
-    internal sealed class FoodSpawnerNode : SpawnerNode<Food, AquariumSceneOption>, IPressable
+    internal sealed class FoodSpawnerNode : SpawnerNode<Food, AquariumActor, AquariumSceneOption>, IPressable
     {
         public void Press(MouseDownEvent evt)
         {
-            var location = new Vector2(evt.mousePosition.x, 0);
+            var location = new Vector2(evt.localMousePosition.x, 0);
             Spawn(location);
         }
 

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UniAquarium.Core.Paints;
 using UniAquarium.Foundation;
 using UnityEngine;

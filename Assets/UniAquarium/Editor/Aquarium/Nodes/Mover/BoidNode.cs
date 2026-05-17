@@ -41,82 +41,107 @@ namespace UniAquarium.Aquarium.Nodes
 
         public override void Update(float deltaTime)
         {
-            foreach (var trackingNode in _trackingNodes)
+            var trackingCount = _trackingNodes.Count;
+            if (trackingCount == 0) return;
+
+            var totalPosition = Vector2.zero;
+            var totalVelocity = Transform.Velocity;
+            for (var i = 0; i < trackingCount; i++)
             {
-                var moveVector = GetMovementVector(trackingNode);
-                var distance = Vector2.Distance(trackingNode.Transform.Position,
-                    trackingNode.HasTarget ? moveVector + trackingNode.TargetPosition : moveVector);
+                var transform = _trackingNodes[i].Transform;
+                totalPosition += transform.Position;
+                totalVelocity += transform.Velocity;
+            }
+
+            for (var i = 0; i < trackingCount; i++)
+            {
+                var trackingNode = _trackingNodes[i];
+                var moveVector = GetMovementVector(trackingNode, totalPosition, totalVelocity, trackingCount);
+                var targetPosition = trackingNode.HasTarget ? moveVector + trackingNode.TargetPosition : moveVector;
+                var diff = trackingNode.Transform.Position - targetPosition;
+                var distance = Mathf.Sqrt(diff.x * diff.x + diff.y * diff.y);
                 trackingNode.TranslateTargetPosition(moveVector, distance);
             }
         }
 
-        private Vector2 GetMovementVector(TargetTrackingNode trackingNode)
+        private Vector2 GetMovementVector(
+            TargetTrackingNode trackingNode,
+            Vector2 totalPosition,
+            Vector2 totalVelocity,
+            int trackingCount)
         {
             var vector = Vector2.zero;
 
-            CalculateVectorToCenter(trackingNode, ref vector);
+            CalculateVectorToCenter(trackingNode, totalPosition, trackingCount, ref vector);
             CalculateVectorToAvoid(trackingNode, ref vector);
-            CalculateVectorToAlign(trackingNode, ref vector);
+            CalculateVectorToAlign(trackingNode, totalVelocity, trackingCount, ref vector);
 
             return vector;
         }
 
-        private void CalculateVectorToCenter(TargetTrackingNode trackingNode, ref Vector2 result)
+        private void CalculateVectorToCenter(
+            TargetTrackingNode trackingNode,
+            Vector2 totalPosition,
+            int trackingCount,
+            ref Vector2 result)
         {
-            var vector = Vector2.zero;
             var position = trackingNode.Transform.Position;
+            var otherCount = trackingCount - 1;
+            var vector = otherCount == 0 ? Transform.Position : (totalPosition - position) / otherCount;
 
-            foreach (var node in _trackingNodes)
-            {
-                if (node.Equals(trackingNode)) continue;
-                vector += node.Transform.Position;
-            }
-
-            vector /= _trackingNodes.Count - 1;
             vector += Transform.Position;
             vector /= 2;
 
-            result = (vector - position).normalized;
-            result *= _cohesion;
+            result += Normalize(vector - position) * _cohesion;
         }
 
         private void CalculateVectorToAvoid(TargetTrackingNode trackingNode, ref Vector2 result)
         {
             var vector = Vector2.zero;
-            foreach (var node in _trackingNodes)
+            var thresholdSqr = _avoidThresholdDistance * _avoidThresholdDistance;
+            var trackingPosition = trackingNode.Transform.Position;
+            for (var i = 0; i < _trackingNodes.Count; i++)
             {
-                if (node.Equals(trackingNode)) continue;
-                if (Vector2.Distance(node.Transform.Position, trackingNode.Transform.Position) <
-                    _avoidThresholdDistance)
-                    vector -= node.Transform.Position - trackingNode.Transform.Position;
+                var node = _trackingNodes[i];
+                if (ReferenceEquals(node, trackingNode)) continue;
+
+                var diff = node.Transform.Position - trackingPosition;
+                if (diff.sqrMagnitude < thresholdSqr)
+                    vector -= diff;
             }
 
-            if (Vector2.Distance(Transform.Position, trackingNode.Transform.Position) <
-                _avoidThresholdDistance)
-                vector -= Transform.Position - trackingNode.Transform.Position;
+            var boidDiff = Transform.Position - trackingPosition;
+            if (boidDiff.sqrMagnitude < thresholdSqr)
+                vector -= boidDiff;
 
-            result += vector.normalized;
-            result *= _separation;
+            result += Normalize(vector) * _separation;
         }
 
-        private void CalculateVectorToAlign(TargetTrackingNode trackingNode, ref Vector2 result)
+        private void CalculateVectorToAlign(
+            TargetTrackingNode trackingNode,
+            Vector2 totalVelocity,
+            int trackingCount,
+            ref Vector2 result)
         {
-            var vector = Vector2.zero;
-            foreach (var node in _trackingNodes)
-            {
-                if (node.Equals(trackingNode)) continue;
-                vector += node.Transform.Velocity;
-            }
+            var vector = totalVelocity - trackingNode.Transform.Velocity;
+            vector /= trackingCount;
 
-            vector += Transform.Velocity;
-            vector /= _trackingNodes.Count;
+            result += Normalize(vector) * _alignment;
+        }
 
-            result += vector.normalized;
-            result *= _alignment;
+        private static Vector2 Normalize(Vector2 vector)
+        {
+            var sqrMagnitude = vector.x * vector.x + vector.y * vector.y;
+            if (sqrMagnitude < 0.000001f) return Vector2.zero;
+
+            var multiplier = 1f / Mathf.Sqrt(sqrMagnitude);
+            return new Vector2(vector.x * multiplier, vector.y * multiplier);
         }
 
         public void AddTrackingNode(TargetTrackingNode targetTrackingNode)
         {
+            if (targetTrackingNode == null) return;
+
             _trackingNodes.Add(targetTrackingNode);
             targetTrackingNode.AutoTarget = false;
         }

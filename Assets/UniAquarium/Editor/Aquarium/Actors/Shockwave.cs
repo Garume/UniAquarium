@@ -1,4 +1,3 @@
-﻿using System.Collections.Generic;
 using UniAquarium.Aquarium.Nodes;
 using UniAquarium.Aquarium.Scene;
 using UniAquarium.Core.Paints;
@@ -27,12 +26,9 @@ namespace UniAquarium.Aquarium.Actors
             _shape = new MarbleCircle(colors);
         }
 
-        protected override IEnumerable<INode> CreateNodes()
+        protected override void Configure(ActorBuilder builder)
         {
-            return new INode[]
-            {
-                new RenderNode<AquariumSceneOption>(_shape)
-            };
+            builder.AddNode(new RenderNode<AquariumSceneOption>(_shape));
         }
 
         public override void Update(float deltaTime)
