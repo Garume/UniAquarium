@@ -12,7 +12,7 @@ Update/draw hot paths were tuned to reduce per-frame allocations and repeated ex
 - Replaced the allocating `GetActors<T>()` iterator with a caller-owned `List<T>` buffer API.
 - Added typed `AquariumScene` indexes for `Food` and `Shockwave`, so receivers no longer scan every actor.
 - Replaced per-detection `TargetTrackingReceivedData` class and arrival `Action` allocations with a value-type payload.
-- Changed `CreateNodes()` from array-returning construction to direct `AddNode()` registration.
+- Replaced `CreateNodes()` with allocation-free `ActorBuilder` composition so actor node setup is explicit without array creation.
 - Changed `Painter2DScope` from a class to a struct to avoid draw-scope heap allocation.
 - Cached `Painter2DScope` rotation sine/cosine instead of recalculating it for every transformed point.
 - Reduced Boid update work by precomputing group position/velocity totals once per update.
@@ -59,10 +59,10 @@ Observed result on this machine:
   "Foods": 64,
   "Shockwaves": 16,
   "Frames": 2000,
-  "TotalMilliseconds": 359.6902,
-  "MillisecondsPerFrame": 0.1798451,
+  "TotalMilliseconds": 367.2165,
+  "MillisecondsPerFrame": 0.18360825,
   "AllocatedBytes": 0,
-  "ManagedMemoryDeltaBytes": 110497792
+  "ManagedMemoryDeltaBytes": 105197568
 }
 ```
 
@@ -85,7 +85,7 @@ Unity EditMode tests were executed through batchmode:
 
 Result:
 
-- 17 tests passed after adding JellyFish geometry, zero-vector target, forced-target cleanup, spawn guardrail, actor-buffer, and scene-option constructor coverage.
+- 18 tests passed after adding JellyFish geometry, zero-vector target, forced-target cleanup, spawn guardrail, actor-buffer, ActorBuilder, and scene-option constructor coverage.
 - 0 failed.
 - Performance benchmark tests assert `AllocatedBytes == 0`.
 - `JellyFishShapeTests` asserts generated head edge points are symmetric and non-NaN.

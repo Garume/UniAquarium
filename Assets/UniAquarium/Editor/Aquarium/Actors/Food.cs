@@ -12,10 +12,10 @@ namespace UniAquarium.Aquarium.Actors
 
         public INode TargetNode { get; set; }
 
-        protected override void CreateNodes()
+        protected override void Configure(ActorBuilder builder)
         {
-            AddNode(new RenderNode<AquariumSceneOption>(new FoodShape()));
-            AddNode(new SwayFallingNode(12f, 4f));
+            builder.AddNode(new RenderNode<AquariumSceneOption>(new FoodShape()));
+            builder.AddNode(new SwayFallingNode(12f, 4f));
         }
 
         public override void Update(float deltaTime)

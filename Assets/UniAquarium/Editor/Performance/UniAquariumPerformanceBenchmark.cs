@@ -186,8 +186,9 @@ namespace UniAquarium.Performance
 
         public override void Initialize()
         {
+            var builder = CreateBuilder();
             for (var i = 0; i < _nodeCount; i++)
-                AddNode(new BenchmarkNode());
+                builder.AddNode(new BenchmarkNode());
 
             base.Initialize();
         }

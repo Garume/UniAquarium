@@ -70,14 +70,10 @@ namespace UniAquarium.Core.Paints
             }
         }
 
-        protected void AddNode(INode node)
+        protected ActorBuilder CreateBuilder()
         {
-            _nodes.Add(node);
+            return new ActorBuilder(_nodes);
         }
 
-        protected void RemoveNode(INode node)
-        {
-            _nodes.Remove(node);
-        }
     }
 }

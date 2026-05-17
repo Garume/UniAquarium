@@ -11,10 +11,10 @@ namespace UniAquarium.Aquarium.Actors
 
         public override void Initialize()
         {
-            CreateNodes();
+            Configure(CreateBuilder());
             base.Initialize();
         }
 
-        protected abstract void CreateNodes();
+        protected abstract void Configure(ActorBuilder builder);
     }
 }

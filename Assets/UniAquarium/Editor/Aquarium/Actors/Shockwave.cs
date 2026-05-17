@@ -26,9 +26,9 @@ namespace UniAquarium.Aquarium.Actors
             _shape = new MarbleCircle(colors);
         }
 
-        protected override void CreateNodes()
+        protected override void Configure(ActorBuilder builder)
         {
-            AddNode(new RenderNode<AquariumSceneOption>(_shape));
+            builder.AddNode(new RenderNode<AquariumSceneOption>(_shape));
         }
 
         public override void Update(float deltaTime)

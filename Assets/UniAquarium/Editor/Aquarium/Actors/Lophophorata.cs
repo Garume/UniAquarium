@@ -14,9 +14,9 @@ namespace UniAquarium.Aquarium.Actors
             _color = color;
         }
 
-        protected override void CreateNodes()
+        protected override void Configure(ActorBuilder builder)
         {
-            AddNode(new RenderNode<AquariumSceneOption>(new LophophorataShape(_color, 20)));
+            builder.AddNode(new RenderNode<AquariumSceneOption>(new LophophorataShape(_color, 20)));
         }
     }
 }

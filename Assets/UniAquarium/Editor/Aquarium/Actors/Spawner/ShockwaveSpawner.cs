@@ -1,5 +1,6 @@
 using UniAquarium.Aquarium.Nodes;
 using UniAquarium.Aquarium.Scene;
+using UniAquarium.Core.Paints;
 
 namespace UniAquarium.Aquarium.Actors
 {
@@ -9,9 +10,9 @@ namespace UniAquarium.Aquarium.Actors
         {
         }
 
-        protected override void CreateNodes()
+        protected override void Configure(ActorBuilder builder)
         {
-            AddNode(new ShockwaveSpawnerNode());
+            builder.AddNode(new ShockwaveSpawnerNode());
         }
     }
 }

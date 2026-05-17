@@ -14,7 +14,7 @@ namespace UniAquarium.Aquarium.Actors
             _color = color;
         }
 
-        protected override void CreateNodes()
+        protected override void Configure(ActorBuilder builder)
         {
             var targetTrackingNode = new TargetTrackingNode(0.1f);
             var shockwaveReceiverNode = new ShockwaveReceiverNode();
@@ -22,10 +22,10 @@ namespace UniAquarium.Aquarium.Actors
             targetTrackingNode.AddReceiver(shockwaveReceiverNode);
             targetTrackingNode.AddReceiver(foodReceiverNode);
 
-            AddNode(new RenderNode<AquariumSceneOption>(new FishShape(_color)));
-            AddNode(targetTrackingNode);
-            AddNode(foodReceiverNode);
-            AddNode(shockwaveReceiverNode);
+            builder.AddNode(new RenderNode<AquariumSceneOption>(new FishShape(_color)));
+            builder.AddNode(targetTrackingNode);
+            builder.AddNode(foodReceiverNode);
+            builder.AddNode(shockwaveReceiverNode);
         }
     }
 }

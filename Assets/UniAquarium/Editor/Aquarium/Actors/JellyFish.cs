@@ -14,10 +14,10 @@ namespace UniAquarium.Aquarium.Actors
             _color = color;
         }
 
-        protected override void CreateNodes()
+        protected override void Configure(ActorBuilder builder)
         {
-            AddNode(new RenderNode<AquariumSceneOption>(new JellyFishShape(_color)));
-            AddNode(new TargetTrackingNode(0.01f));
+            builder.AddNode(new RenderNode<AquariumSceneOption>(new JellyFishShape(_color)));
+            builder.AddNode(new TargetTrackingNode(0.01f));
         }
     }
 }

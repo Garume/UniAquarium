@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UniAquarium.Core.Paints;
 using UnityEngine;
@@ -50,6 +50,22 @@ namespace UniAquarium.Tests.Editor
 
             Assert.Throws<InvalidOperationException>(() => scene.Spawn(actor, Vector2.zero, 0f, 1f));
             Assert.That(actor.InitializeCount, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ActorBuilder_AddsNodeToActorLifecycle()
+        {
+            var scene = new TestScene();
+            var option = new TestSceneOption(320f, 240f, scene);
+            var node = new TestNode();
+            var actor = new TestActor(option) { NodeToAdd = node };
+
+            scene.Spawn(actor, Vector2.zero, 0f, 1f);
+            scene.Update(0.1f);
+
+            Assert.That(node.Transform, Is.SameAs(actor));
+            Assert.That(node.SceneOption, Is.SameAs(option));
+            Assert.That(node.UpdateCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -116,12 +132,16 @@ namespace UniAquarium.Tests.Editor
             }
 
             public bool DestroyOnUpdate { get; set; }
+            public TestNode NodeToAdd { get; set; }
             public int InitializeCount { get; private set; }
             public int UpdateCount { get; private set; }
 
             public override void Initialize()
             {
                 InitializeCount++;
+                if (NodeToAdd != null)
+                    CreateBuilder().AddNode(NodeToAdd);
+
                 base.Initialize();
             }
 
@@ -131,6 +151,16 @@ namespace UniAquarium.Tests.Editor
                 base.Update(deltaTime);
 
                 if (DestroyOnUpdate) Destroy();
+            }
+        }
+
+        private sealed class TestNode : Node<TestSceneOption>
+        {
+            public int UpdateCount { get; private set; }
+
+            public override void Update(float deltaTime)
+            {
+                UpdateCount++;
             }
         }
     }
