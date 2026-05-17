@@ -57,22 +57,8 @@ namespace UniAquarium.Aquarium.Nodes
                     _ => _lastDirection
                 };
 
-                foreach (var sign in new[] { -1, 1 })
-                {
-                    painter.lineWidth = 3 * size;
-                    painter.DrawLine(
-                        x + Mathf.Cos(angle + 120f * sign * Mathf.Deg2Rad) * 10 * size,
-                        y + Mathf.Sin(angle + 120f * sign * Mathf.Deg2Rad) * 10 * size,
-                        x + Mathf.Cos(angle + (145f + _lastAngle) * sign * Mathf.Deg2Rad) * 45 * size,
-                        y + Mathf.Sin(angle + (145f + _lastAngle) * sign * Mathf.Deg2Rad) * 45 * size
-                    );
-
-                    painter.FillCircle(
-                        x + Mathf.Cos(angle + (145f + _lastAngle) * sign * Mathf.Deg2Rad) * 45 * size,
-                        y + Mathf.Sin(angle + (145f + _lastAngle) * sign * Mathf.Deg2Rad) * 45 * size,
-                        4 * size
-                    );
-                }
+                DrawFin(painter, x, y, angle, size, -1);
+                DrawFin(painter, x, y, angle, size, 1);
 
                 painter.FillCircle(
                     _segments[number].x,
@@ -103,6 +89,24 @@ namespace UniAquarium.Aquarium.Nodes
                     _segments[number].y,
                     (10 - number) * 0.5f * size);
             }
+        }
+
+        private void DrawFin(Painter2D painter, float x, float y, float angle, float size, int sign)
+        {
+            var rootAngle = angle + 120f * sign * Mathf.Deg2Rad;
+            var tipAngle = angle + (145f + _lastAngle) * sign * Mathf.Deg2Rad;
+            var tipX = x + Mathf.Cos(tipAngle) * 45 * size;
+            var tipY = y + Mathf.Sin(tipAngle) * 45 * size;
+
+            painter.lineWidth = 3 * size;
+            painter.DrawLine(
+                x + Mathf.Cos(rootAngle) * 10 * size,
+                y + Mathf.Sin(rootAngle) * 10 * size,
+                tipX,
+                tipY
+            );
+
+            painter.FillCircle(tipX, tipY, 4 * size);
         }
     }
 }

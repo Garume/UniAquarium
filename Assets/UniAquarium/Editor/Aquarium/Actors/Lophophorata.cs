@@ -1,4 +1,3 @@
-﻿using System.Collections.Generic;
 using UniAquarium.Aquarium.Nodes;
 using UniAquarium.Aquarium.Scene;
 using UniAquarium.Core.Paints;
@@ -15,12 +14,9 @@ namespace UniAquarium.Aquarium.Actors
             _color = color;
         }
 
-        protected override IEnumerable<INode> CreateNodes()
+        protected override void CreateNodes()
         {
-            return new INode[]
-            {
-                new RenderNode<AquariumSceneOption>(new LophophorataShape(_color, 20))
-            };
+            AddNode(new RenderNode<AquariumSceneOption>(new LophophorataShape(_color, 20)));
         }
     }
 }

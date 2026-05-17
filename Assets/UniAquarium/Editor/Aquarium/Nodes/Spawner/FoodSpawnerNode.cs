@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace UniAquarium.Aquarium.Nodes
 {
-    internal sealed class FoodSpawnerNode : SpawnerNode<Food, AquariumSceneOption>, IPressable
+    internal sealed class FoodSpawnerNode : SpawnerNode<Food, AquariumActor, AquariumSceneOption>, IPressable
     {
         public void Press(MouseDownEvent evt)
         {

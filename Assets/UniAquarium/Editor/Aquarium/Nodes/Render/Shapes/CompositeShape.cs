@@ -51,7 +51,8 @@ namespace UniAquarium.Aquarium.Nodes
 
         public override void Draw(Painter2D painter, ITransform transform, float deltaTime)
         {
-            foreach (var shape in _shapes) shape.Draw(painter, transform, deltaTime);
+            for (var i = 0; i < _shapes.Count; i++)
+                _shapes[i].Draw(painter, transform, deltaTime);
         }
     }
 }

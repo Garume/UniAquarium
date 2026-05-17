@@ -57,7 +57,7 @@ namespace UniAquarium.Aquarium
 
         public FishSetting[] FishSettings
         {
-            get => _fishSettings;
+            get => _fishSettings ?? Array.Empty<FishSetting>();
             set => _fishSettings = value;
         }
     }
@@ -84,7 +84,7 @@ namespace UniAquarium.Aquarium
 
         public FishGroupSetting[] FishGroupSettings
         {
-            get => _fishGroupSettings;
+            get => _fishGroupSettings ?? Array.Empty<FishGroupSetting>();
             set => _fishGroupSettings = value;
         }
     }
@@ -116,7 +116,13 @@ namespace UniAquarium.Aquarium
 
         public AquariumSetting AquariumSetting
         {
-            get => _aquariumSetting ?? GetDefaultSetting();
+            get
+            {
+                if (_aquariumSetting == null)
+                    _aquariumSetting = GetDefaultSetting();
+
+                return _aquariumSetting;
+            }
             private set => _aquariumSetting = value;
         }
 

@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
 using UniAquarium.Aquarium.Nodes;
 using UniAquarium.Aquarium.Scene;
-using UniAquarium.Core.Paints;
 
 namespace UniAquarium.Aquarium.Actors
 {
@@ -11,12 +9,9 @@ namespace UniAquarium.Aquarium.Actors
         {
         }
 
-        protected override IEnumerable<INode> CreateNodes()
+        protected override void CreateNodes()
         {
-            return new INode[]
-            {
-                new ShockwaveSpawnerNode()
-            };
+            AddNode(new ShockwaveSpawnerNode());
         }
     }
 }

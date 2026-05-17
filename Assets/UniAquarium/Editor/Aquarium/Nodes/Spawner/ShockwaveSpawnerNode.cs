@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace UniAquarium.Aquarium.Nodes
 {
-    internal class ShockwaveSpawnerNode : SpawnerNode<Shockwave, AquariumSceneOption>, IPressable
+    internal class ShockwaveSpawnerNode : SpawnerNode<Shockwave, AquariumActor, AquariumSceneOption>, IPressable
     {
         public void Press(MouseDownEvent evt)
         {

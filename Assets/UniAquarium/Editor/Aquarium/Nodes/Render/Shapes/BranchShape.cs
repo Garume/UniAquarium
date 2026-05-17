@@ -1,4 +1,3 @@
-﻿using System.Linq;
 using UniAquarium.Core.Paints;
 using UniAquarium.Foundation;
 using UnityEngine;
@@ -35,8 +34,13 @@ namespace UniAquarium.Aquarium.Nodes
             _segmentLength = Random.Range(50, 70);
             _maxSegmentPointSize = Random.Range(5, 10);
 
-            _points = new float[_segments].Select(x => Random.Range(0f, _segments) + Random.Range(0f, 1f)).ToArray();
-            _pointFlickingSpeeds = new float[_segments].Select(x => Random.Range(5f, 10f)).ToArray();
+            _points = new float[_segments];
+            _pointFlickingSpeeds = new float[_segments];
+            for (var i = 0; i < _segments; i++)
+            {
+                _points[i] = Random.Range(0f, _segments) + Random.Range(0f, 1f);
+                _pointFlickingSpeeds[i] = Random.Range(5f, 10f);
+            }
         }
 
 
@@ -79,7 +83,7 @@ namespace UniAquarium.Aquarium.Nodes
 
             float Rand()
             {
-                return Random.Range(0f, 1f) * 0.001f * (Random.Range(0, 1) == 0 ? -1 : 1);
+                return Random.Range(0f, 1f) * 0.001f * (Random.Range(0, 2) == 0 ? -1 : 1);
             }
         }
     }

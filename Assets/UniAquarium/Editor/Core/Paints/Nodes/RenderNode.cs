@@ -2,7 +2,7 @@
 
 namespace UniAquarium.Core.Paints
 {
-    internal sealed class RenderNode<TOption> : Node<TOption> where TOption : ISceneOption
+    public sealed class RenderNode<TOption> : Node<TOption> where TOption : ISceneOption
     {
         private readonly Shape _shape;
 

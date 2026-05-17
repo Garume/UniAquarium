@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
 using UniAquarium.Aquarium.Nodes;
 using UniAquarium.Aquarium.Scene;
-using UniAquarium.Core.Paints;
 
 namespace UniAquarium.Aquarium.Actors
 {
@@ -13,15 +11,11 @@ namespace UniAquarium.Aquarium.Actors
         {
         }
 
-        protected override IEnumerable<INode> CreateNodes()
+        protected override void CreateNodes()
         {
             _boidNode = new BoidNode(0.5f, 10f, 0.2f);
-            var trackingNode = new TargetTrackingNode(0.3f);
-            return new INode[]
-            {
-                _boidNode,
-                trackingNode
-            };
+            AddNode(_boidNode);
+            AddNode(new TargetTrackingNode(0.3f));
         }
 
         public void AddTrackingNode(TargetTrackingNode targetTrackingNode)

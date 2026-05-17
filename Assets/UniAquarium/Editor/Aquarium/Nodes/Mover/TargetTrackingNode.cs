@@ -1,5 +1,5 @@
-﻿using System;
 using System.Collections.Generic;
+using UniAquarium.Aquarium.Actors;
 using UniAquarium.Aquarium.Scene;
 using UniAquarium.Core.Paints;
 using UniAquarium.Foundation;
@@ -9,11 +9,43 @@ using Random = UnityEngine.Random;
 
 namespace UniAquarium.Aquarium.Nodes
 {
-    internal class TargetTrackingReceivedData
+    internal enum TargetTrackingArrivalAction
     {
-        public Action OnArrived;
+        None,
+        DestroyFood,
+        ApplyVelocity
+    }
+
+    internal struct TargetTrackingReceivedData
+    {
+        public TargetTrackingArrivalAction ArrivalAction;
+        public Food Food;
+        public UniAquarium.Core.Paints.ITransform Transform;
+        public float LastSpeed;
         public float Speed;
         public Vector2 TargetPosition;
+
+        public void InvokeArrival()
+        {
+            switch (ArrivalAction)
+            {
+                case TargetTrackingArrivalAction.DestroyFood:
+                    Food?.Destroy();
+                    break;
+                case TargetTrackingArrivalAction.ApplyVelocity:
+                    Transform.Velocity = Normalize(Transform.Velocity) * LastSpeed;
+                    break;
+            }
+        }
+
+        private static Vector2 Normalize(Vector2 vector)
+        {
+            var sqrMagnitude = vector.x * vector.x + vector.y * vector.y;
+            if (sqrMagnitude < 0.000001f) return Vector2.zero;
+
+            var multiplier = 1f / Mathf.Sqrt(sqrMagnitude);
+            return new Vector2(vector.x * multiplier, vector.y * multiplier);
+        }
     }
 
     internal sealed class TargetTrackingNode : Node<AquariumSceneOption>
@@ -25,9 +57,10 @@ namespace UniAquarium.Aquarium.Nodes
 
         private float _actualSpeed;
         private float _angle;
+        private bool _hasTarget;
         private bool _isForceTracking;
         private float _lastDeltaTime;
-        private Action _onArrived;
+        private TargetTrackingReceivedData _receivedData;
 
         public TargetTrackingNode(float speed = 1, float noiseSize = 1f, float smoothCurveRate = 0.1f)
         {
@@ -36,7 +69,7 @@ namespace UniAquarium.Aquarium.Nodes
             _smoothCurveRate = smoothCurveRate;
         }
 
-        public bool HasTarget => TargetPosition != Vector2.zero;
+        public bool HasTarget => _hasTarget;
 
         public bool AutoTarget { get; set; } = true;
 
@@ -66,14 +99,16 @@ namespace UniAquarium.Aquarium.Nodes
 
         public override void Update(float deltaTime)
         {
-            foreach (var receiverNode in _receiverNodes)
+            for (var i = 0; i < _receiverNodes.Count; i++)
             {
-                var item = receiverNode.ReceivedItem;
-                if (item == null) continue;
+                var receiverNode = _receiverNodes[i];
+                if (!receiverNode.HasReceivedItem) continue;
 
+                var item = receiverNode.ReceivedItem;
                 TargetPosition = item.TargetPosition;
+                _hasTarget = true;
                 _actualSpeed = item.Speed * SpeedBias;
-                _onArrived = item.OnArrived;
+                _receivedData = item;
 
                 _isForceTracking = true;
             }
@@ -89,10 +124,11 @@ namespace UniAquarium.Aquarium.Nodes
 
         private void UpdatePosition(float deltaTime)
         {
-            if (TargetPosition == Vector2.zero)
+            if (!_hasTarget)
             {
                 if (!AutoTarget || _isForceTracking) return;
                 TargetPosition = new Vector2(Random.Range(0, SceneOption.Width), Random.Range(0, SceneOption.Height));
+                _hasTarget = true;
                 _actualSpeed = SpeedBias * (1f + Random.Range(0f, 1f) * 0.5f);
                 return;
             }
@@ -102,33 +138,34 @@ namespace UniAquarium.Aquarium.Nodes
             var angleDiff = Mathf.Atan2(diff.y, diff.x);
             _angle = Mathf.LerpAngle(_angle, angleDiff, _smoothCurveRate);
 
-            var vector = diff.normalized;
-            var velocity = vector * _actualSpeed + new Vector2(Noise(), Noise());
+            var vector = Normalize(diff);
+            var noiseScale = AutoTarget ? _noiseSize : 0f;
+            var noise = 0.5f * _actualSpeed * noiseScale;
+            var velocity = vector * _actualSpeed + new Vector2(
+                Random.Range(0f, 1f) * noise,
+                Random.Range(0f, 1f) * noise
+            );
 
             Transform.Velocity = velocity * deltaTime;
             Transform.Position += Transform.Velocity;
             Transform.Rotation = _angle;
 
-            if (Vector2.Distance(Transform.Position, TargetPosition) < 2f && AutoTarget)
+            var arrived = (Transform.Position - TargetPosition).sqrMagnitude < 4f;
+            if (arrived && AutoTarget)
             {
                 TargetPosition = Vector2.zero;
+                _hasTarget = false;
                 _isForceTracking = false;
-                _onArrived?.Invoke();
-                _onArrived = null;
+                _receivedData.InvokeArrival();
+                _receivedData = default;
             }
-            else if (Vector2.Distance(Transform.Position, TargetPosition) < 2f && _isForceTracking)
+            else if (arrived && _isForceTracking)
             {
                 _isForceTracking = false;
-                _onArrived?.Invoke();
-                _onArrived = null;
+                _receivedData.InvokeArrival();
+                _receivedData = default;
             }
 
-            return;
-
-            float Noise()
-            {
-                return Random.Range(0f, 1f) * 0.5f * _actualSpeed * (AutoTarget ? _noiseSize : 0);
-            }
         }
 
         public void TranslateTargetPosition(Vector2 moveVector, float speed)
@@ -138,11 +175,25 @@ namespace UniAquarium.Aquarium.Nodes
             _actualSpeed = speed;
 
             if (!HasTarget)
+            {
                 TargetPosition = moveVector;
+                _hasTarget = true;
+            }
             else
+            {
                 TargetPosition += moveVector;
+            }
 
             UpdatePosition(_lastDeltaTime);
+        }
+
+        private static Vector2 Normalize(Vector2 vector)
+        {
+            var sqrMagnitude = vector.x * vector.x + vector.y * vector.y;
+            if (sqrMagnitude < 0.000001f) return Vector2.zero;
+
+            var multiplier = 1f / Mathf.Sqrt(sqrMagnitude);
+            return new Vector2(vector.x * multiplier, vector.y * multiplier);
         }
     }
 }
