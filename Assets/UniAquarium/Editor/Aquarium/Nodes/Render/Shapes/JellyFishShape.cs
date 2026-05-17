@@ -23,7 +23,6 @@ namespace UniAquarium.Aquarium.Nodes
         private readonly Color _headFillColor;
         private readonly float _headSize;
         private readonly float _headWitherPower;
-        private readonly Vector2[] _headFramePoints;
         private readonly Vector2[] _leftHeadPoints;
         private readonly Vector2[] _rightHeadPoints;
 
@@ -38,7 +37,6 @@ namespace UniAquarium.Aquarium.Nodes
             _capPointCos = new float[CapJointCount];
             _capPointPower = new float[CapJointCount];
             _capPointSin = new float[CapJointCount];
-            _headFramePoints = new Vector2[CapJointCount];
             _leftHeadPoints = new Vector2[CapJointCount];
             _rightHeadPoints = new Vector2[CapJointCount];
             _capPointAngleOffset = 0f;
@@ -89,20 +87,28 @@ namespace UniAquarium.Aquarium.Nodes
 
         private void DrawHeadFrame(Painter2DScope painter, float scale)
         {
-            painter.StrokeColor = _color;
-            painter.LineWidth = Mathf.Max(1f, scale);
+            painter.FillColor = _color;
+            painter.BeginPath();
 
             for (var r = HeadFrameStartAngle; r <= HeadFrameEndAngle; r += (int)HeadDetail)
             {
-                CalculateHeadCurvePointsFromCache(scale, Mathf.Sin(r * Mathf.Deg2Rad), _headFramePoints);
-                painter.BeginPath();
-                painter.MoveTo(Vector2.zero);
+                CalculateHeadCurvePointsFromCache(scale, Mathf.Sin(r * Mathf.Deg2Rad), _leftHeadPoints);
+                CalculateHeadCurvePointsFromCache(scale, Mathf.Sin((r + HeadDetail) * Mathf.Deg2Rad),
+                    _rightHeadPoints);
 
-                for (var i = 0; i < _headFramePoints.Length; i++)
-                    painter.LineTo(_headFramePoints[i]);
+                for (var i = 0; i < _leftHeadPoints.Length; i++)
+                {
+                    if (r == HeadFrameStartAngle && i == 0)
+                        painter.MoveTo(_leftHeadPoints[i]);
+                    else
+                        painter.LineTo(_leftHeadPoints[i]);
 
-                painter.Stroke();
+                    painter.LineTo(_rightHeadPoints[i]);
+                }
             }
+
+            painter.ClosePath();
+            painter.Fill();
         }
 
         private void DrawFillHead(Painter2DScope painter)

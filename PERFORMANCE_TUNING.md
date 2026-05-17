@@ -13,8 +13,7 @@ Update/draw hot paths were tuned to reduce per-frame allocations and repeated ex
 - Added typed `AquariumScene` indexes for `Food` and `Shockwave`, so receivers no longer scan every actor.
 - Replaced per-detection `TargetTrackingReceivedData` class and arrival `Action` allocations with a value-type payload.
 - Replaced `CreateNodes()` with allocation-free `ActorBuilder` composition so actor node setup is explicit without array creation.
-- Changed `Painter2DScope` from a class to a struct to avoid draw-scope heap allocation.
-- Cached `Painter2DScope` rotation sine/cosine instead of recalculating it for every transformed point.
+- Kept `Painter2DScope` as a reference type to preserve mutable transform semantics.
 - Reduced Boid update work by precomputing group position/velocity totals once per update.
 - Replaced additional `Vector2.normalized` hot-path calls with explicit guarded normalization.
 - Reworked `JellyFishShape` head geometry so fill/frame use the same edge point calculation and added cached cap sine/cosine/power values.

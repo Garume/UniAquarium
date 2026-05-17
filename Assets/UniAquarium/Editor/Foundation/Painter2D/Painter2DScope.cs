@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace UniAquarium.Foundation
 {
-    internal struct Painter2DScope : IDisposable
+    internal sealed class Painter2DScope : IDisposable
     {
         private readonly Color _originalFillColor;
         private readonly LineCap _originalLineCap;
@@ -14,10 +14,8 @@ namespace UniAquarium.Foundation
         private readonly Color _originalStrokeColor;
         private readonly Gradient _originalStrokeGradient;
         private readonly Painter2D _painter2D;
-        private float _cosRotation;
         private Vector2 _position;
         private float _rotation;
-        private float _sinRotation;
 
         public Painter2DScope(Painter2D painter2D)
         {
@@ -29,10 +27,6 @@ namespace UniAquarium.Foundation
             _originalMiterLimit = painter2D.miterLimit;
             _originalStrokeColor = painter2D.strokeColor;
             _originalStrokeGradient = painter2D.strokeGradient;
-            _cosRotation = 1f;
-            _position = Vector2.zero;
-            _rotation = 0f;
-            _sinRotation = 0f;
         }
 
         public Color FillColor
@@ -86,8 +80,6 @@ namespace UniAquarium.Foundation
         public void Rotate(float value)
         {
             _rotation += value;
-            _cosRotation = Mathf.Cos(_rotation);
-            _sinRotation = Mathf.Sin(_rotation);
         }
 
         public void Translate(Vector2 value)
@@ -148,8 +140,11 @@ namespace UniAquarium.Foundation
 
         private Vector2 Transform(Vector2 position)
         {
-            var rotatedX = _cosRotation * position.x - _sinRotation * position.y;
-            var rotatedY = _sinRotation * position.x + _cosRotation * position.y;
+            var cos = Mathf.Cos(_rotation);
+            var sin = Mathf.Sin(_rotation);
+
+            var rotatedX = cos * position.x - sin * position.y;
+            var rotatedY = sin * position.x + cos * position.y;
 
             return new Vector2(rotatedX, rotatedY) + _position;
         }
