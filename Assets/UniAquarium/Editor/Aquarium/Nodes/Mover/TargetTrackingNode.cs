@@ -69,7 +69,7 @@ namespace UniAquarium.Aquarium.Nodes
             _smoothCurveRate = smoothCurveRate;
         }
 
-        public bool HasTarget => _hasTarget;
+        public bool HasTarget => TargetPosition != Vector2.zero;
 
         public bool AutoTarget { get; set; } = true;
 
@@ -105,6 +105,8 @@ namespace UniAquarium.Aquarium.Nodes
                 if (!receiverNode.HasReceivedItem) continue;
 
                 var item = receiverNode.ReceivedItem;
+                if (item.TargetPosition == Vector2.zero) continue;
+
                 TargetPosition = item.TargetPosition;
                 _hasTarget = true;
                 _actualSpeed = item.Speed * SpeedBias;
@@ -124,8 +126,10 @@ namespace UniAquarium.Aquarium.Nodes
 
         private void UpdatePosition(float deltaTime)
         {
-            if (!_hasTarget)
+            if (TargetPosition == Vector2.zero)
             {
+                _hasTarget = false;
+                _isForceTracking = false;
                 if (!AutoTarget || _isForceTracking) return;
                 TargetPosition = new Vector2(Random.Range(0, SceneOption.Width), Random.Range(0, SceneOption.Height));
                 _hasTarget = true;
@@ -179,7 +183,6 @@ namespace UniAquarium.Aquarium.Nodes
             if (!HasTarget)
             {
                 TargetPosition = moveVector;
-                _hasTarget = true;
             }
             else
             {

@@ -9,12 +9,12 @@ namespace UniAquarium.Tests.Editor
     public sealed class TargetTrackingNodeTests
     {
         [Test]
-        public void Update_AcceptsZeroVectorAsValidForcedTarget()
+        public void Update_IgnoresZeroVectorForcedTarget()
         {
             var scene = new AquariumScene();
             var option = new AquariumSceneOption(320f, 240f, scene);
             var transform = new TestTransform { Position = new Vector2(10f, 0f) };
-            var receiver = new StubReceiverNode(0.01f);
+            var receiver = new StubReceiverNode(Vector2.zero, 0.01f);
             var tracking = new TargetTrackingNode { AutoTarget = false };
 
             receiver.Initialize(transform, option);
@@ -24,8 +24,9 @@ namespace UniAquarium.Tests.Editor
             receiver.Update(0.1f);
             tracking.Update(0.1f);
 
-            Assert.That(tracking.HasTarget, Is.True);
+            Assert.That(tracking.HasTarget, Is.False);
             Assert.That(tracking.TargetPosition, Is.EqualTo(Vector2.zero));
+            Assert.That(transform.Position, Is.EqualTo(new Vector2(10f, 0f)));
         }
 
         [Test]
@@ -34,7 +35,7 @@ namespace UniAquarium.Tests.Editor
             var scene = new AquariumScene();
             var option = new AquariumSceneOption(320f, 240f, scene);
             var transform = new TestTransform { Position = Vector2.zero };
-            var receiver = new StubReceiverNode(1f);
+            var receiver = new StubReceiverNode(new Vector2(0.1f, 0f), 0.01f);
             var tracking = new TargetTrackingNode { AutoTarget = false };
 
             receiver.Initialize(transform, option);
@@ -50,9 +51,11 @@ namespace UniAquarium.Tests.Editor
         private sealed class StubReceiverNode : ReceiverNode<TargetTrackingReceivedData, AquariumSceneOption>
         {
             private readonly float _speed;
+            private readonly Vector2 _targetPosition;
 
-            public StubReceiverNode(float speed)
+            public StubReceiverNode(Vector2 targetPosition, float speed)
             {
+                _targetPosition = targetPosition;
                 _speed = speed;
             }
 
@@ -60,7 +63,7 @@ namespace UniAquarium.Tests.Editor
             {
                 receivedItem = new TargetTrackingReceivedData
                 {
-                    TargetPosition = Vector2.zero,
+                    TargetPosition = _targetPosition,
                     Speed = _speed
                 };
                 return true;
