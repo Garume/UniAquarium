@@ -161,6 +161,8 @@ namespace UniAquarium.Aquarium.Nodes
             }
             else if (arrived && _isForceTracking)
             {
+                TargetPosition = Vector2.zero;
+                _hasTarget = false;
                 _isForceTracking = false;
                 _receivedData.InvokeArrival();
                 _receivedData = default;

@@ -14,7 +14,7 @@ namespace UniAquarium.Tests.Editor
             var scene = new AquariumScene();
             var option = new AquariumSceneOption(320f, 240f, scene);
             var transform = new TestTransform { Position = new Vector2(10f, 0f) };
-            var receiver = new StubReceiverNode();
+            var receiver = new StubReceiverNode(0.01f);
             var tracking = new TargetTrackingNode { AutoTarget = false };
 
             receiver.Initialize(transform, option);
@@ -28,14 +28,40 @@ namespace UniAquarium.Tests.Editor
             Assert.That(tracking.TargetPosition, Is.EqualTo(Vector2.zero));
         }
 
+        [Test]
+        public void Update_WhenForcedTargetArrives_ClearsTarget()
+        {
+            var scene = new AquariumScene();
+            var option = new AquariumSceneOption(320f, 240f, scene);
+            var transform = new TestTransform { Position = Vector2.zero };
+            var receiver = new StubReceiverNode(1f);
+            var tracking = new TargetTrackingNode { AutoTarget = false };
+
+            receiver.Initialize(transform, option);
+            tracking.Initialize(transform, option);
+            tracking.AddReceiver(receiver);
+
+            receiver.Update(0.1f);
+            tracking.Update(0.1f);
+
+            Assert.That(tracking.HasTarget, Is.False);
+        }
+
         private sealed class StubReceiverNode : ReceiverNode<TargetTrackingReceivedData, AquariumSceneOption>
         {
+            private readonly float _speed;
+
+            public StubReceiverNode(float speed)
+            {
+                _speed = speed;
+            }
+
             protected override bool TryUpdateReceived(out TargetTrackingReceivedData receivedItem)
             {
                 receivedItem = new TargetTrackingReceivedData
                 {
                     TargetPosition = Vector2.zero,
-                    Speed = 0.01f
+                    Speed = _speed
                 };
                 return true;
             }

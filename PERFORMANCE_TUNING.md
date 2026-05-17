@@ -21,6 +21,9 @@ Update/draw hot paths were tuned to reduce per-frame allocations and repeated ex
 - Replaced `Vector2.zero` target sentinel logic in `TargetTrackingNode` with explicit target state, so `(0, 0)` is a valid target.
 - Removed unused `INode.Id` / `Guid.NewGuid()` identity management from nodes.
 - Added scene spawn guardrails for null actors and duplicate actor spawn attempts.
+- Added scene spawn guardrails for destroyed actor reuse.
+- `GetActors<T>(List<T>)` now owns clearing the caller-provided buffer before writing results.
+- Forced target arrival now clears `TargetTrackingNode` target state immediately.
 - Tightened `AquariumSceneOption` construction to require an `AquariumScene` instead of accepting a generic utility and casting internally.
 - Added `AllocatedBytes` measurement using `GC.GetAllocatedBytesForCurrentThread()`.
 - Replaced `foreach` in hot update/draw loops with indexed `for` loops.
@@ -56,10 +59,10 @@ Observed result on this machine:
   "Foods": 64,
   "Shockwaves": 16,
   "Frames": 2000,
-  "TotalMilliseconds": 359.2757,
-  "MillisecondsPerFrame": 0.17963785,
+  "TotalMilliseconds": 359.6902,
+  "MillisecondsPerFrame": 0.1798451,
   "AllocatedBytes": 0,
-  "ManagedMemoryDeltaBytes": 96092160
+  "ManagedMemoryDeltaBytes": 110497792
 }
 ```
 
@@ -82,7 +85,7 @@ Unity EditMode tests were executed through batchmode:
 
 Result:
 
-- 14 tests passed after adding JellyFish geometry, zero-vector target, spawn guardrail, and scene-option constructor coverage.
+- 17 tests passed after adding JellyFish geometry, zero-vector target, forced-target cleanup, spawn guardrail, actor-buffer, and scene-option constructor coverage.
 - 0 failed.
 - Performance benchmark tests assert `AllocatedBytes == 0`.
 - `JellyFishShapeTests` asserts generated head edge points are symmetric and non-NaN.

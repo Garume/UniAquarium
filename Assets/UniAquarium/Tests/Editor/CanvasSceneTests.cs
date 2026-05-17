@@ -40,6 +40,35 @@ namespace UniAquarium.Tests.Editor
         }
 
         [Test]
+        public void Spawn_WhenActorIsDestroyed_Throws()
+        {
+            var scene = new TestScene();
+            var option = new TestSceneOption(320f, 240f, scene);
+            var actor = new TestActor(option);
+
+            actor.Destroy();
+
+            Assert.Throws<InvalidOperationException>(() => scene.Spawn(actor, Vector2.zero, 0f, 1f));
+            Assert.That(actor.InitializeCount, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void GetActors_ClearsProvidedBufferBeforeWriting()
+        {
+            var scene = new TestScene();
+            var option = new TestSceneOption(320f, 240f, scene);
+            var staleActor = new TestActor(option);
+            var actor = new TestActor(option);
+            var actorBuffer = new List<TestActor> { staleActor };
+
+            scene.Spawn(actor, Vector2.zero, 0f, 1f);
+
+            Assert.That(scene.GetActors(actorBuffer), Is.EqualTo(1));
+            Assert.That(actorBuffer, Has.Count.EqualTo(1));
+            Assert.That(actorBuffer[0], Is.SameAs(actor));
+        }
+
+        [Test]
         public void Update_RemovesDestroyedActorsWithoutSkippingNextActor()
         {
             var scene = new TestScene();

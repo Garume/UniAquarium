@@ -34,6 +34,8 @@ namespace UniAquarium.Core.Paints
         public void Spawn<T>(T actor, Vector2? location, float angle, float scale) where T : TActor
         {
             if (actor == null) throw new ArgumentNullException(nameof(actor));
+            if (actor.IsDestroyed)
+                throw new InvalidOperationException("Destroyed actors cannot be spawned again.");
             if (ContainsActor(actor))
                 throw new InvalidOperationException("The actor has already been spawned in this scene.");
 
@@ -48,6 +50,9 @@ namespace UniAquarium.Core.Paints
 
         public int GetActors<T>(List<T> results) where T : TActor
         {
+            if (results == null) throw new ArgumentNullException(nameof(results));
+            results.Clear();
+
             var count = 0;
             for (var i = 0; i < _actors.Count; i++)
             {
