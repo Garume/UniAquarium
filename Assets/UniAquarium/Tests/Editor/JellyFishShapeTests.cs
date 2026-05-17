@@ -26,5 +26,27 @@ namespace UniAquarium.Tests.Editor
                 Assert.That(left[i].y, Is.EqualTo(right[i].y).Within(0.0001f));
             }
         }
+
+        [Test]
+        public void CalculateHeadCurvePoints_StaysBetweenHeadEdges()
+        {
+            var shape = new JellyFishShape(Color.cyan);
+            var left = new Vector2[10];
+            var center = new Vector2[10];
+            var right = new Vector2[10];
+
+            shape.AdvanceCapPointAngles(1f / 60f);
+            shape.CalculateHeadEdgePoints(1f, left, right);
+            shape.CalculateHeadCurvePoints(1f, 0f, center);
+
+            for (var i = 0; i < center.Length; i++)
+            {
+                Assert.That(center[i].x, Is.EqualTo(0f).Within(0.0001f));
+                Assert.That(center[i].y, Is.EqualTo(left[i].y).Within(0.0001f));
+                Assert.That(center[i].y, Is.EqualTo(right[i].y).Within(0.0001f));
+                Assert.That(center[i].x, Is.GreaterThanOrEqualTo(right[i].x));
+                Assert.That(center[i].x, Is.LessThanOrEqualTo(left[i].x));
+            }
+        }
     }
 }

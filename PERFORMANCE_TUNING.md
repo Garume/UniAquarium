@@ -59,10 +59,10 @@ Observed result on this machine:
   "Foods": 64,
   "Shockwaves": 16,
   "Frames": 2000,
-  "TotalMilliseconds": 367.2165,
-  "MillisecondsPerFrame": 0.18360825,
+  "TotalMilliseconds": 365.0854,
+  "MillisecondsPerFrame": 0.1825427,
   "AllocatedBytes": 0,
-  "ManagedMemoryDeltaBytes": 105197568
+  "ManagedMemoryDeltaBytes": 98058240
 }
 ```
 
@@ -85,7 +85,7 @@ Unity EditMode tests were executed through batchmode:
 
 Result:
 
-- 18 tests passed after adding JellyFish geometry, zero-vector target, forced-target cleanup, spawn guardrail, actor-buffer, ActorBuilder, and scene-option constructor coverage.
+- 19 tests passed after adding JellyFish geometry, zero-vector target, forced-target cleanup, spawn guardrail, actor-buffer, ActorBuilder, and scene-option constructor coverage.
 - 0 failed.
 - Performance benchmark tests assert `AllocatedBytes == 0`.
 - `JellyFishShapeTests` asserts generated head edge points are symmetric and non-NaN.

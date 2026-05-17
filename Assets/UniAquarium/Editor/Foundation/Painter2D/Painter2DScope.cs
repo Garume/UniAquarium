@@ -120,6 +120,11 @@ namespace UniAquarium.Foundation
             _painter2D?.Fill();
         }
 
+        public void Stroke()
+        {
+            _painter2D?.Stroke();
+        }
+
         public void DrawLine(Vector2 from, Vector2 to, float width, Color color)
         {
             var transformedFrom = Transform(from);

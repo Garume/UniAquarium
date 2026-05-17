@@ -72,8 +72,8 @@ namespace UniAquarium.Aquarium.Nodes
         internal void CalculateHeadEdgePoints(float scale, Vector2[] leftHeadPoints, Vector2[] rightHeadPoints)
         {
             UpdateCapPointCache();
-            CalculateHeadPoints(scale, 1f, leftHeadPoints);
-            CalculateHeadPoints(scale, -1f, rightHeadPoints);
+            CalculateHeadCurvePointsFromCache(scale, 1f, leftHeadPoints);
+            CalculateHeadCurvePointsFromCache(scale, -1f, rightHeadPoints);
         }
 
         private void UpdateCapPointCache()
@@ -89,15 +89,19 @@ namespace UniAquarium.Aquarium.Nodes
 
         private void DrawHeadFrame(Painter2DScope painter, float scale)
         {
-            painter.FillColor = _color;
+            painter.StrokeColor = _color;
+            painter.LineWidth = Mathf.Max(1f, scale);
 
-            for (var r = HeadFrameStartAngle; r < HeadFrameEndAngle; r += (int)HeadDetail)
+            for (var r = HeadFrameStartAngle; r <= HeadFrameEndAngle; r += (int)HeadDetail)
             {
+                CalculateHeadCurvePointsFromCache(scale, Mathf.Sin(r * Mathf.Deg2Rad), _headFramePoints);
                 painter.BeginPath();
-                AddHeadCurve(painter, scale, Mathf.Sin(r * Mathf.Deg2Rad), true);
-                AddHeadCurve(painter, scale, Mathf.Sin((r + HeadDetail) * Mathf.Deg2Rad), false);
-                painter.ClosePath();
-                painter.Fill();
+                painter.MoveTo(Vector2.zero);
+
+                for (var i = 0; i < _headFramePoints.Length; i++)
+                    painter.LineTo(_headFramePoints[i]);
+
+                painter.Stroke();
             }
         }
 
@@ -118,23 +122,13 @@ namespace UniAquarium.Aquarium.Nodes
             painter.Fill();
         }
 
-        private void AddHeadCurve(Painter2DScope painter, float scale, float radialScale, bool forward)
+        internal void CalculateHeadCurvePoints(float scale, float radialScale, Vector2[] points)
         {
-            CalculateHeadPoints(scale, radialScale, _headFramePoints);
-            if (forward)
-            {
-                painter.MoveTo(_headFramePoints[0]);
-                for (var i = 1; i < _headFramePoints.Length; i++)
-                    painter.LineTo(_headFramePoints[i]);
-
-                return;
-            }
-
-            for (var i = _headFramePoints.Length - 1; i >= 0; i--)
-                painter.LineTo(_headFramePoints[i]);
+            UpdateCapPointCache();
+            CalculateHeadCurvePointsFromCache(scale, radialScale, points);
         }
 
-        private void CalculateHeadPoints(float scale, float radialScale, Vector2[] points)
+        private void CalculateHeadCurvePointsFromCache(float scale, float radialScale, Vector2[] points)
         {
             var to = Vector2.zero;
 
